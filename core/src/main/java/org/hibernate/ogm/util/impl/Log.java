@@ -6,18 +6,13 @@
  */
 package org.hibernate.ogm.util.impl;
 
-import static org.jboss.logging.Logger.Level.DEBUG;
-import static org.jboss.logging.Logger.Level.ERROR;
-import static org.jboss.logging.Logger.Level.INFO;
-import static org.jboss.logging.Logger.Level.WARN;
-
 import java.io.Serializable;
 import java.lang.annotation.ElementType;
 import java.util.Collection;
 
-import javax.persistence.PersistenceException;
 import javax.transaction.SystemException;
 
+import jakarta.persistence.PersistenceException;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.TransactionException;
@@ -33,6 +28,11 @@ import org.jboss.logging.annotations.FormatWith;
 import org.jboss.logging.annotations.LogMessage;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
+
+import static org.jboss.logging.Logger.Level.DEBUG;
+import static org.jboss.logging.Logger.Level.ERROR;
+import static org.jboss.logging.Logger.Level.INFO;
+import static org.jboss.logging.Logger.Level.WARN;
 
 /**
  * Log messages and exceptions used by Hibernate OGM core. Dialects may provide extensions of this interface with their

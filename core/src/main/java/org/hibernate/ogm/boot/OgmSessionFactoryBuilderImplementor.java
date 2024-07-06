@@ -19,7 +19,6 @@ import org.hibernate.cache.spi.TimestampsCacheFactory;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.hibernate.loader.BatchFetchStyle;
 import org.hibernate.ogm.OgmSessionFactory;
-import org.hibernate.ogm.boot.impl.OgmSessionFactoryOptions;
 import org.hibernate.proxy.EntityNotFoundDelegate;
 import org.hibernate.query.NullPrecedence;
 import org.hibernate.query.sqm.function.SqmFunctionDescriptor;
@@ -94,8 +93,8 @@ public interface OgmSessionFactoryBuilderImplementor extends SessionFactoryBuild
 	@Override
 	OgmSessionFactoryBuilderImplementor applyBatchFetchStyle(BatchFetchStyle style);
 
-	@Override
-	OgmSessionFactoryBuilderImplementor applyDelayedEntityLoaderCreations(boolean delay);
+	//@Override
+	//OgmSessionFactoryBuilderImplementor applyDelayedEntityLoaderCreations(boolean delay);
 
 	@Override
 	OgmSessionFactoryBuilderImplementor applyDefaultBatchFetchSize(int size);
@@ -108,9 +107,6 @@ public interface OgmSessionFactoryBuilderImplementor extends SessionFactoryBuild
 
 	@Override
 	OgmSessionFactoryBuilderImplementor applyDefaultNullPrecedence(NullPrecedence nullPrecedence);
-
-	@Override
-	OgmSessionFactoryOptions buildSessionFactoryOptions();
 
 	@Override
 	OgmSessionFactoryBuilderImplementor applyOrderingOfInserts(boolean enabled);
