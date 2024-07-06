@@ -93,8 +93,8 @@ public interface OgmSessionFactoryBuilderImplementor extends SessionFactoryBuild
 	@Override
 	OgmSessionFactoryBuilderImplementor applyBatchFetchStyle(BatchFetchStyle style);
 
-	//@Override
-	//OgmSessionFactoryBuilderImplementor applyDelayedEntityLoaderCreations(boolean delay);
+	@Override
+	OgmSessionFactoryBuilderImplementor applyDelayedEntityLoaderCreations(boolean delay);
 
 	@Override
 	OgmSessionFactoryBuilderImplementor applyDefaultBatchFetchSize(int size);
