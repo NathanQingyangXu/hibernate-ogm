@@ -34,7 +34,7 @@ public class NoSQLProcedureCallImpl extends ProcedureCallImpl {
 	}
 
 	public NoSQLProcedureCallImpl(SharedSessionContractImplementor session, NoSQLProcedureCallMemento memento) {
-		super( session, memento.unwrap( ProcedureCallMementoImpl.class ) );
+		super( session, memento.unwrap( ProcedureCallImpl.class ) );
 		this.memento = memento;
 	}
 

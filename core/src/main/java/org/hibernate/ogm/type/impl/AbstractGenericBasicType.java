@@ -11,20 +11,20 @@ import java.util.Map;
 
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
-import org.hibernate.cfg.NotYetImplementedException;
 import org.hibernate.engine.spi.Mapping;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.ogm.cfg.NotYetImplementedException;
 import org.hibernate.ogm.model.spi.Tuple;
+import org.hibernate.ogm.type.StringRepresentableType;
 import org.hibernate.ogm.type.descriptor.impl.GridTypeDescriptor;
 import org.hibernate.ogm.type.descriptor.impl.GridValueBinder;
 import org.hibernate.ogm.type.descriptor.impl.GridValueExtractor;
 import org.hibernate.ogm.type.spi.GridType;
 import org.hibernate.type.ForeignKeyDirection;
-import org.hibernate.type.StringRepresentableType;
 import org.hibernate.type.descriptor.WrapperOptions;
-import org.hibernate.type.descriptor.java.JavaTypeDescriptor;
+import org.hibernate.type.descriptor.java.JavaType;
 import org.hibernate.type.descriptor.java.MutabilityPlan;
 
 /**
@@ -35,17 +35,17 @@ import org.hibernate.type.descriptor.java.MutabilityPlan;
  */
 public abstract class AbstractGenericBasicType<T>
 		implements  GridType, //BasicType,
-				StringRepresentableType<T> {
+		StringRepresentableType<T> {
 
 	private static final boolean[] TRUE = { true };
 	private static final boolean[] FALSE = { false };
 
 	private final GridTypeDescriptor gridTypeDescriptor;
-	private final JavaTypeDescriptor<T> javaTypeDescriptor;
+	private final JavaType<T> javaTypeDescriptor;
 	private final GridValueExtractor<T> typeExtractor;
 	private final GridValueBinder<T> typeBinder;
 
-	public AbstractGenericBasicType(GridTypeDescriptor gridTypeDescriptor, JavaTypeDescriptor<T> javaTypeDescriptor) {
+	public AbstractGenericBasicType(GridTypeDescriptor gridTypeDescriptor, JavaType<T> javaTypeDescriptor) {
 		this.gridTypeDescriptor = gridTypeDescriptor;
 		this.javaTypeDescriptor = javaTypeDescriptor;
 		this.typeExtractor = gridTypeDescriptor.getExtractor( javaTypeDescriptor );
@@ -100,7 +100,7 @@ public abstract class AbstractGenericBasicType<T>
 
 	// final implementations ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	public final JavaTypeDescriptor<T> getJavaTypeDescriptor() {
+	public final JavaType<T> getJavaTypeDescriptor() {
 		return javaTypeDescriptor;
 	}
 
@@ -284,12 +284,12 @@ public abstract class AbstractGenericBasicType<T>
 	@Override
 	@SuppressWarnings({ "unchecked" })
 	public final Serializable disassemble(Object value, SharedSessionContractImplementor session, Object owner) throws HibernateException {
-		return getMutabilityPlan().disassemble( (T) value );
+		return getMutabilityPlan().disassemble( (T) value, session );
 	}
 
 	@Override
 	public final Object assemble(Serializable cached, SharedSessionContractImplementor session, Object owner) throws HibernateException {
-		return getMutabilityPlan().assemble( cached );
+		return getMutabilityPlan().assemble( cached, session );
 	}
 
 	@Override

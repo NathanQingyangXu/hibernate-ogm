@@ -24,12 +24,13 @@
     <modules>
         <module>bom</module>
         <module>core</module>
-        <!-- <module>infinispan</module> Is only enabled when not running in Java 9: see the profiles section-->
-        <!-- <module>infinispan-remote</module> Is only enabled when not running in Java 9: see the profiles section-->
+        <module>infinispan</module>
+		<module>infinispan-embedded</module>
+        <module>infinispan-remote</module>
         <module>mongodb</module>
         <module>neo4j</module>
         <module>jipijapa</module>
-        <!-- <module>featurepack</module> WildFly feature pack modules require all of the above modules to be enabled -->
+        <module>featurepack</module>
         <module>performance</module>
     </modules>
 

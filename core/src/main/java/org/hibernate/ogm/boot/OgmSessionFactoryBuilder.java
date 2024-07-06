@@ -6,25 +6,25 @@
  */
 package org.hibernate.ogm.boot;
 
-import java.util.Map;
+import java.util.function.Supplier;
 
-import org.hibernate.ConnectionReleaseMode;
 import org.hibernate.CustomEntityDirtinessStrategy;
-import org.hibernate.EntityMode;
 import org.hibernate.EntityNameResolver;
 import org.hibernate.Interceptor;
-import org.hibernate.MultiTenancyStrategy;
-import org.hibernate.NullPrecedence;
 import org.hibernate.SessionFactoryObserver;
+import org.hibernate.annotations.CacheLayout;
 import org.hibernate.boot.SessionFactoryBuilder;
+import org.hibernate.boot.TempTableDdlTransactionHandling;
+import org.hibernate.cache.spi.TimestampsCacheFactory;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
-import org.hibernate.dialect.function.SQLFunction;
-import org.hibernate.hql.spi.id.MultiTableBulkIdStrategy;
 import org.hibernate.loader.BatchFetchStyle;
 import org.hibernate.ogm.OgmSessionFactory;
 import org.hibernate.proxy.EntityNotFoundDelegate;
-import org.hibernate.tuple.entity.EntityTuplizer;
-import org.hibernate.tuple.entity.EntityTuplizerFactory;
+import org.hibernate.query.NullPrecedence;
+import org.hibernate.query.sqm.function.SqmFunctionDescriptor;
+import org.hibernate.resource.jdbc.spi.PhysicalConnectionHandlingMode;
+import org.hibernate.resource.jdbc.spi.StatementInspector;
+import org.hibernate.type.format.FormatMapper;
 
 /**
  * A {@link SessionFactoryBuilder} which creates {@link OgmSessionFactory} instances.
@@ -58,6 +58,15 @@ public interface OgmSessionFactoryBuilder extends SessionFactoryBuilder {
 	OgmSessionFactoryBuilder applyInterceptor(Interceptor interceptor);
 
 	@Override
+	OgmSessionFactoryBuilder applyStatelessInterceptor(Class<? extends Interceptor> statelessInterceptorClass);
+
+	@Override
+	OgmSessionFactoryBuilder applyStatelessInterceptor(Supplier<? extends Interceptor> statelessInterceptorSupplier);
+
+	@Override
+	OgmSessionFactoryBuilder applyStatementInspector(StatementInspector statementInspector);
+
+	@Override
 	OgmSessionFactoryBuilder addSessionFactoryObservers(SessionFactoryObserver... observers);
 
 	@Override
@@ -73,34 +82,28 @@ public interface OgmSessionFactoryBuilder extends SessionFactoryBuilder {
 	OgmSessionFactoryBuilder applyIdentifierRollbackSupport(boolean enabled);
 
 	@Override
-	@Deprecated
-	OgmSessionFactoryBuilder applyDefaultEntityMode(EntityMode entityMode);
-
-	@Override
 	OgmSessionFactoryBuilder applyNullabilityChecking(boolean enabled);
 
 	@Override
 	OgmSessionFactoryBuilder applyLazyInitializationOutsideTransaction(boolean enabled);
 
 	@Override
-	OgmSessionFactoryBuilder applyEntityTuplizerFactory(EntityTuplizerFactory entityTuplizerFactory);
-
-	@Override
-	OgmSessionFactoryBuilder applyEntityTuplizer(
-			EntityMode entityMode,
-			Class<? extends EntityTuplizer> tuplizerClass);
-
-	@Override
-	OgmSessionFactoryBuilder applyMultiTableBulkIdStrategy(MultiTableBulkIdStrategy strategy);
+	OgmSessionFactoryBuilder applyTempTableDdlTransactionHandling(TempTableDdlTransactionHandling handling);
 
 	@Override
 	OgmSessionFactoryBuilder applyBatchFetchStyle(BatchFetchStyle style);
+
+	@Override
+	OgmSessionFactoryBuilder applyDelayedEntityLoaderCreations(boolean delay);
 
 	@Override
 	OgmSessionFactoryBuilder applyDefaultBatchFetchSize(int size);
 
 	@Override
 	OgmSessionFactoryBuilder applyMaximumFetchDepth(int depth);
+
+	@Override
+	OgmSessionFactoryBuilder applySubselectFetchEnabled(boolean enabled);
 
 	@Override
 	OgmSessionFactoryBuilder applyDefaultNullPrecedence(NullPrecedence nullPrecedence);
@@ -112,21 +115,16 @@ public interface OgmSessionFactoryBuilder extends SessionFactoryBuilder {
 	OgmSessionFactoryBuilder applyOrderingOfUpdates(boolean enabled);
 
 	@Override
-	OgmSessionFactoryBuilder applyMultiTenancyStrategy(MultiTenancyStrategy strategy);
+	OgmSessionFactoryBuilder applyMultiTenancy(boolean enabled);
 
 	@Override
-	OgmSessionFactoryBuilder applyCurrentTenantIdentifierResolver(CurrentTenantIdentifierResolver resolver);
+	OgmSessionFactoryBuilder applyCurrentTenantIdentifierResolver(CurrentTenantIdentifierResolver<?> resolver);
 
 	@Override
-	@Deprecated
 	OgmSessionFactoryBuilder applyJtaTrackingByThread(boolean enabled);
 
 	@Override
-	@Deprecated
-	OgmSessionFactoryBuilder applyQuerySubstitutions(Map substitutions);
-
-	@Override
-	OgmSessionFactoryBuilder applyStrictJpaQueryLanguageCompliance(boolean enabled);
+	OgmSessionFactoryBuilder applyPreferUserTransactions(boolean preferUserTransactions);
 
 	@Override
 	OgmSessionFactoryBuilder applyNamedQueryCheckingOnStartup(boolean enabled);
@@ -136,6 +134,12 @@ public interface OgmSessionFactoryBuilder extends SessionFactoryBuilder {
 
 	@Override
 	OgmSessionFactoryBuilder applyQueryCacheSupport(boolean enabled);
+
+	@Override
+	OgmSessionFactoryBuilder applyQueryCacheLayout(CacheLayout cacheLayout);
+
+	@Override
+	OgmSessionFactoryBuilder applyTimestampsCacheFactory(TimestampsCacheFactory factory);
 
 	@Override
 	OgmSessionFactoryBuilder applyCacheRegionPrefix(String prefix);
@@ -162,22 +166,52 @@ public interface OgmSessionFactoryBuilder extends SessionFactoryBuilder {
 	OgmSessionFactoryBuilder applyScrollableResultsSupport(boolean enabled);
 
 	@Override
-	OgmSessionFactoryBuilder applyResultSetsWrapping(boolean enabled);
-
-	@Override
 	OgmSessionFactoryBuilder applyGetGeneratedKeysSupport(boolean enabled);
 
 	@Override
 	OgmSessionFactoryBuilder applyJdbcFetchSize(int size);
 
 	@Override
-	OgmSessionFactoryBuilder applyConnectionReleaseMode(ConnectionReleaseMode connectionReleaseMode);
+	OgmSessionFactoryBuilder applyConnectionHandlingMode(PhysicalConnectionHandlingMode connectionHandlingMode);
+
+	@Override
+	OgmSessionFactoryBuilder applyConnectionProviderDisablesAutoCommit(boolean providerDisablesAutoCommit);
 
 	@Override
 	OgmSessionFactoryBuilder applySqlComments(boolean enabled);
 
 	@Override
-	OgmSessionFactoryBuilder applySqlFunction(String registrationName, SQLFunction sqlFunction);
+	OgmSessionFactoryBuilder applySqlFunction(String registrationName, SqmFunctionDescriptor functionDescriptor);
+
+	@Override
+	OgmSessionFactoryBuilder applyCollectionsInDefaultFetchGroup(boolean enabled);
+
+	@Override
+	OgmSessionFactoryBuilder allowOutOfTransactionUpdateOperations(boolean allow);
+
+	@Override
+	OgmSessionFactoryBuilder enableReleaseResourcesOnCloseEnabled(boolean enable);
+
+	@Override
+	OgmSessionFactoryBuilder enableJpaQueryCompliance(boolean enabled);
+
+	@Override
+	OgmSessionFactoryBuilder enableJpaOrderByMappingCompliance(boolean enabled);
+
+	@Override
+	OgmSessionFactoryBuilder enableJpaTransactionCompliance(boolean enabled);
+
+	@Override
+	OgmSessionFactoryBuilder enableJpaListCompliance(boolean enabled);
+
+	@Override
+	OgmSessionFactoryBuilder enableJpaClosedCompliance(boolean enabled);
+
+	@Override
+	OgmSessionFactoryBuilder applyJsonFormatMapper(FormatMapper jsonFormatMapper);
+
+	@Override
+	OgmSessionFactoryBuilder applyXmlFormatMapper(FormatMapper xmlFormatMapper);
 
 	@Override
 	OgmSessionFactory build();
